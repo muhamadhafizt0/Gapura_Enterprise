@@ -1,5 +1,5 @@
-import React from 'react';
-import { PlusCircle, History, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { PlusCircle, History, Sparkles, Wifi, WifiOff } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { GapuraLogo } from './Logo';
 
@@ -16,6 +16,21 @@ export const Header: React.FC<HeaderProps> = ({
   onReset,
   historyCount,
 }) => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   return (
     <header className="bg-[#8B0000] text-white shadow-lg sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
@@ -40,34 +55,59 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Desktop Navigation Tabs */}
-          <div className="hidden md:flex items-center bg-black/20 p-1 rounded-xl border border-white/10">
-            <button
-              id="tab-btn-create-desktop"
-              type="button"
-              onClick={() => onTabChange('create')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'create'
-                  ? 'bg-white text-[#8B0000] shadow-sm'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
+          {/* Right Status & Navigation */}
+          <div className="flex items-center gap-2.5">
+            {/* Offline Status Badge */}
+            <div
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition border ${
+                isOnline
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/30 text-amber-200 border-amber-400/50 animate-pulse'
               }`}
+              title={isOnline ? 'Online (Terhubung)' : 'Mode Offline Aktif (Bisa buat nota tanpa internet)'}
             >
-              <PlusCircle className="w-4 h-4 text-[#84cc16]" />
-              Buat Nota
-            </button>
-            <button
-              id="tab-btn-history-desktop"
-              type="button"
-              onClick={() => onTabChange('history')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'history'
-                  ? 'bg-white text-[#8B0000] shadow-sm'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <History className="w-4 h-4 text-[#84cc16]" />
-              Riwayat Nota ({historyCount})
-            </button>
+              {isOnline ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span className="hidden sm:inline">Online</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Offline Ready</span>
+                </>
+              )}
+            </div>
+
+            {/* Desktop Navigation Tabs */}
+            <div className="hidden md:flex items-center bg-black/20 p-1 rounded-xl border border-white/10">
+              <button
+                id="tab-btn-create-desktop"
+                type="button"
+                onClick={() => onTabChange('create')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  activeTab === 'create'
+                    ? 'bg-white text-[#8B0000] shadow-sm'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <PlusCircle className="w-4 h-4 text-[#84cc16]" />
+                Buat Nota
+              </button>
+              <button
+                id="tab-btn-history-desktop"
+                type="button"
+                onClick={() => onTabChange('history')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  activeTab === 'history'
+                    ? 'bg-white text-[#8B0000] shadow-sm'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <History className="w-4 h-4 text-[#84cc16]" />
+                Riwayat Nota ({historyCount})
+              </button>
+            </div>
           </div>
         </div>
       </div>
